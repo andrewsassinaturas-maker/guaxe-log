@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Lista de Voos</title>
+
+<style>
+body {
+  background: #0f172a;
+  color: white;
+  font-family: Arial;
+  padding: 20px;
+}
+
+.card {
+  background: #1e293b;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Lista de Voos</h1>
+<div id="lista"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="script.js"></script>
+
+<script>
+async function carregarVoos() {
+  const { data, error } = await supabaseClient
+    .from("flights")
+    .select("*")
+    .order("id", { ascending: false });
+
+  const lista = document.getElementById("lista");
+  lista.innerHTML = "";
+
+  if (error) {
+    console.log(error);
+    alert("Erro ao carregar voos");
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    lista.innerHTML = "Nenhum voo encontrado";
+    return;
+  }
+
+  data.forEach(voo => {
+    lista.innerHTML += `
+      <div class="card">
+        ✈️ <b>${voo.matricula}</b> | ${voo.piloto}<br>
+        📅 ${voo.data}<br>
+        ${voo.origem} → ${voo.destino}<br>
+        ⏱ ${voo.acionamento || "-"} → ${voo.corte || "-"}<br>
+
+        <button onclick="editarVoo(${voo.id})">Editar</button>
+        <button onclick="excluirVoo(${voo.id})">Excluir</button>
+      </div>
+    `;
+  });
+}
+
+carregarVoos();
+</script>
+
+</body>
+</html>
